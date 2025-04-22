@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2D Scan Results | NeuroScan AI</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --secondary: #10b981;
+        }
+        .gradient-text {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .btn-primary {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+        .feature-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #4f46e5;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <div class="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center">
+                        <i class="fas fa-brain text-white text-xl"></i>
+                    </div>
+                    <span class="text-2xl font-bold text-gray-800">Neuro<span class="gradient-text">Scan</span> AI</span>
+                </div>
+                <a href="/" class="btn-primary text-white px-6 py-2 rounded-lg font-medium hover:shadow-md transition-shadow">
+                    <i class="fas fa-home mr-2"></i> Home
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+        <!-- Diagnosis Summary -->
+        <div class="text-center mb-16">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">2D Scan <span class="gradient-text">Results</span></h1>
+            <div class="w-24 h-1 bg-indigo-600 mx-auto mb-6"></div>
+
+            <div class="inline-flex items-center bg-indigo-100 text-indigo-800 px-6 py-3 rounded-full mb-6">
+                <i class="fas fa-diagnoses text-xl mr-3"></i>
+                <span class="text-lg font-semibold">{{ class_name }}</span>
+            </div>
+
+            <div class="flex justify-center items-center space-x-4">
+                <div class="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                    <div class="text-2xl font-bold text-indigo-600">{{ (confidence * 100)|round }}%</div>
+                    <div class="text-sm text-gray-500">Confidence Score</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scan Visualization -->
+        <section class="mb-16 bg-white p-8 rounded-xl shadow-lg">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Analysis Visualization</h2>
+            <div class="flex flex-col md:flex-row justify-center gap-8">
+                <div class="text-center">
+                    <h3 class="text-lg font-semibold mb-4">Original MRI Scan</h3>
+                    <img src="{{ url_for('static', filename='uploads/' + filename) }}"
+                         alt="Original MRI Scan"
+                         class="max-w-full h-auto rounded-lg shadow-md">
+                </div>
+                {% if plot_filename %}
+                <div class="text-center">
+                    <h3 class="text-lg font-semibold mb-4">Diagnosis Breakdown</h3>
+                    <img src="{{ url_for('static', filename='uploads/' + plot_filename) }}"
+                         alt="Diagnosis Visualization for {{ class_name }}"
+                         class="max-w-full h-auto rounded-lg shadow-md">
+                </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- Biomarker Analysis -->
+        <section class="mb-16">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Biomarker Analysis</h2>
+            <div class="grid md:grid-cols-3 gap-6">
+                <!-- Hippocampal Atrophy -->
+                <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-indigo-100 text-indigo-600 p-2 rounded-full mr-3">
+                            <i class="fas fa-memory"></i>
+                        </div>
+                        <h3 class="font-semibold text-gray-800">Hippocampal Atrophy</h3>
+                    </div>
+                    <div class="feature-value">
+                        {% if features.hippocampal_atrophy is not none %}
+                            {{ (features.hippocampal_atrophy * 100)|round(1) }}% likelihood
+                        {% else %}
+                            Data not available
+                        {% endif %}
+                    </div>
+                    <div class="h-2 bg-gray-200 rounded-full mt-4 mb-2">
+                        <div class="h-2 bg-indigo-600 rounded-full"
+                             style="width: {% if features.hippocampal_atrophy is not none %}{{ features.hippocampal_atrophy * 100 }}%{% else %}0%{% endif %}"></div>
+                    </div>
+                    <p class="text-sm text-gray-500">
+                        <i class="fas fa-info-circle text-indigo-500 mr-1"></i>
+                        Measures shrinkage in hippocampus, an early Alzheimer's marker
+                    </p>
+                </div>
+
+                <!-- Ventricular Enlargement -->
+                <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-indigo-100 text-indigo-600 p-2 rounded-full mr-3">
+                            <i class="fas fa-expand"></i>
+                        </div>
+                        <h3 class="font-semibold text-gray-800">Ventricular Enlargement</h3>
+                    </div>
+                    <div class="feature-value">
+                        {% if features.ventricular_enlargement is not none %}
+                            {{ (features.ventricular_enlargement * 100)|round(1) }}% likelihood
+                        {% else %}
+                            Data not available
+                        {% endif %}
+                    </div>
+                    <div class="h-2 bg-gray-200 rounded-full mt-4 mb-2">
+                        <div class="h-2 bg-indigo-600 rounded-full"
+                             style="width: {% if features.ventricular_enlargement is not none %}{{ features.ventricular_enlargement * 100 }}%{% else %}0%{% endif %}"></div>
+                    </div>
+                    <p class="text-sm text-gray-500">
+                        <i class="fas fa-info-circle text-indigo-500 mr-1"></i>
+                        Indicates brain volume loss as ventricles expand
+                    </p>
+                </div>
+
+                <!-- Cortical Thinning -->
+                <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-indigo-100 text-indigo-600 p-2 rounded-full mr-3">
+                            <i class="fas fa-layer-group"></i>
+                        </div>
+                        <h3 class="font-semibold text-gray-800">Cortical Thinning</h3>
+                    </div>
+                    <div class="feature-value">
+                        {% if features.cortical_thinning is not none %}
+                            {{ (features.cortical_thinning * 100)|round(1) }}% likelihood
+                        {% else %}
+                            Data not available
+                        {% endif %}
+                    </div>
+                    <div class="h-2 bg-gray-200 rounded-full mt-4 mb-2">
+                        <div class="h-2 bg-indigo-600 rounded-full"
+                             style="width: {% if features.cortical_thinning is not none %}{{ features.cortical_thinning * 100 }}%{% else %}0%{% endif %}"></div>
+                    </div>
+                    <p class="text-sm text-gray-500">
+                        <i class="fas fa-info-circle text-indigo-500 mr-1"></i>
+                        Shows thinning of the brain's outer layer (cortex)
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recommendations -->
+        {% if recommendations %}
+        <section class="mb-16 bg-indigo-50 p-8 rounded-xl">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Clinical Recommendations</h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                {% for recommendation in recommendations %}
+                <div class="bg-white p-5 rounded-lg shadow-sm flex items-start hover:shadow-md transition-shadow">
+                    <div class="bg-indigo-100 text-indigo-600 p-3 rounded-full mr-4">
+                        <i class="fas fa-{{ 'user-md' if loop.index0 == 0 else 'flask' if loop.index0 == 1 else 'brain' if loop.index0 == 2 else 'calendar-check' }}"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-800 mb-1">
+                            {% if loop.index0 == 0 %}Clinical Evaluation
+                            {% elif loop.index0 == 1 %}Diagnostic Testing
+                            {% elif loop.index0 == 2 %}Therapeutic Options
+                            {% else %}Follow-up Schedule{% endif %}
+                        </h3>
+                        <p class="text-gray-600">{{ recommendation }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- Next Steps -->
+        <section class="text-center">
+            <div class="mb-8 bg-white p-6 rounded-xl shadow-sm">
+                <h3 class="text-xl font-semibold text-gray-800 mb-3">Next Steps</h3>
+                <p class="text-gray-600 mb-4">Based on your scan results showing {{ class_name }}, we recommend consulting with a neurologist for further evaluation.</p>
+                <a href="/" class="btn-primary text-white px-8 py-3 rounded-lg font-medium inline-block hover:shadow-lg transition-shadow mr-4">
+                    <i class="fas fa-undo mr-2"></i> Analyze Another Scan
+                </a>
+                <a href="#" class="bg-white text-indigo-600 border border-indigo-600 px-8 py-3 rounded-lg font-medium inline-block hover:bg-indigo-50 transition-colors">
+                    <i class="fas fa-calendar-alt mr-2"></i> Find a Specialist
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-900 text-white pt-12 pb-8">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-6 md:mb-0">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center">
+                            <i class="fas fa-brain text-white"></i>
+                        </div>
+                        <span class="text-xl font-bold">Neuro<span class="gradient-text">Scan</span> AI</span>
+                    </div>
+                    <p class="text-gray-400 mt-2">Advanced AI for early dementia detection</p>
+                </div>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                        <i class="fab fa-twitter text-xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                        <i class="fab fa-github text-xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                        <i class="fas fa-envelope text-xl"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>© 2025 NeuroScan AI. All rights reserved.</p>
+                <p class="mt-2 text-sm">For research purposes only. Not for clinical diagnosis.</p>
+                <p class="mt-1 text-xs">Results should be interpreted by qualified medical professionals.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

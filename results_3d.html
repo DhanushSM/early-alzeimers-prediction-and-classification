@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Scan Results | NeuroScan AI</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --secondary: #10b981;
+        }
+
+        .gradient-text {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .card-hover {
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .brain-region {
+            transition: all 0.3s ease;
+        }
+
+        .brain-region:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- Navigation -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <div class="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center">
+                        <i class="fas fa-brain text-white text-xl"></i>
+                    </div>
+                    <span class="text-2xl font-bold text-gray-800">Neuro<span class="gradient-text">Scan</span> AI</span>
+                </div>
+                <a href="/" class="btn-primary text-white px-6 py-2 rounded-lg font-medium">
+                    <i class="fas fa-home mr-2"></i> Home
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Results Section -->
+    <main class="container mx-auto px-6 py-12">
+        <!-- Results Header -->
+        <div class="text-center mb-16 animate__animated animate__fadeIn">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">3D Scan <span class="gradient-text">Analysis</span></h1>
+            <div class="w-24 h-1 bg-indigo-600 mx-auto mb-6"></div>
+
+            <div class="inline-flex items-center bg-indigo-100 text-indigo-800 px-6 py-3 rounded-full mb-6">
+                <i class="fas fa-diagnoses text-xl mr-3"></i>
+                <span class="text-lg font-semibold">{{ results.predicted_condition }}</span>
+            </div>
+
+            <div class="flex justify-center items-center space-x-4">
+                <div class="bg-white p-4 rounded-lg shadow-sm">
+                    <div class="text-2xl font-bold text-indigo-600">{{ (results.confidence * 100)|round }}%</div>
+                    <div class="text-sm text-gray-500">Confidence</div>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow-sm">
+                    <div class="text-2xl font-bold text-indigo-600">{{ results.volume_analysis.percentile }}%</div>
+                    <div class="text-sm text-gray-500">Percentile</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3D Visualization -->
+        <section class="mb-16 bg-white p-8 rounded-xl shadow-lg">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">3D Brain Visualization</h2>
+            <div class="grid md:grid-cols-2 gap-8 items-center">
+                <div class="bg-gray-100 rounded-xl p-4 flex justify-center items-center">
+                    <img src="{{ url_for('static', filename='images/brain-3d-model.png') }}" alt="3D Brain Model" class="w-full h-auto max-h-80 object-contain">
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Abnormalities Detected</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <i class="fas fa-{{ 'check-circle text-red-500' if results.abnormalities.hippocampus else 'times-circle text-green-500' }} mt-1 mr-3"></i>
+                            <span>Hippocampus - {{ 'Atrophy detected' if results.abnormalities.hippocampus else 'Normal' }}</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-{{ 'check-circle text-red-500' if results.abnormalities.temporal_lobe else 'times-circle text-green-500' }} mt-1 mr-3"></i>
+                            <span>Temporal Lobe - {{ 'Thinning detected' if results.abnormalities.temporal_lobe else 'Normal' }}</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-{{ 'check-circle text-red-500' if results.abnormalities.frontal_lobe else 'times-circle text-green-500' }} mt-1 mr-3"></i>
+                            <span>Frontal Lobe - {{ 'Reduced volume' if results.abnormalities.frontal_lobe else 'Normal' }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Detailed Metrics -->
+        <section class="mb-16">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Quantitative Analysis</h2>
+            <div class="grid md:grid-cols-3 gap-6">
+                <!-- Hippocampal Volume -->
+                <div class="bg-white p-6 rounded-xl shadow-sm card-hover">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-semibold text-gray-800">Hippocampal Volume</h3>
+                        <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-brain text-indigo-600"></i>
+                        </div>
+                    </div>
+                    <div class="text-3xl font-bold text-gray-900 mb-2">
+                        {{ results.volume_analysis.left_hippocampus|round }} mm<sup>3</sup>
+                    </div>
+                    <div class="text-sm text-gray-500">Left Hemisphere</div>
+                    <div class="h-2 bg-gray-200 rounded-full mt-4 mb-2">
+                        <div class="h-2 bg-indigo-600 rounded-full" style="width: {{ 100 - (results.volume_analysis.percentile/1.5) }}%"></div>
+                    </div>
+                    <div class="text-sm text-gray-500">{{ results.hippocampal_volume }} compared to age-matched controls</div>
+                </div>
+
+                <!-- Ventricle Size -->
+                <div class="bg-white p-6 rounded-xl shadow-sm card-hover">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-semibold text-gray-800">Ventricle Size</h3>
+                        <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-water text-indigo-600"></i>
+                        </div>
+                    </div>
+                    <div class="text-3xl font-bold text-gray-900 mb-2">
+                        {{ results.ventricle_size.split('%')[0] }}%
+                    </div>
+                    <div class="text-sm text-gray-500">Enlargement</div>
+                    <div class="h-2 bg-gray-200 rounded-full mt-4 mb-2">
+                        <div class="h-2 bg-indigo-600 rounded-full" style="width: {{ results.ventricle_size.split('%')[0]|int / 2 }}%"></div>
+                    </div>
+                    <div class="text-sm text-gray-500">{{ results.ventricle_size }} normal range</div>
+                </div>
+
+                <!-- Cortical Thickness -->
+                <div class="bg-white p-6 rounded-xl shadow-sm card-hover">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-semibold text-gray-800">Cortical Thickness</h3>
+                        <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-layer-group text-indigo-600"></i>
+                        </div>
+                    </div>
+                    <div class="text-3xl font-bold text-gray-900 mb-2">
+                        {{ results.cortical_thickness.split(' ')[0] }}
+                    </div>
+                    <div class="text-sm text-gray-500">{{ results.cortical_thickness.split('in ')[1] }}</div>
+                    <div class="h-2 bg-gray-200 rounded-full mt-4 mb-2">
+                        <div class="h-2 bg-indigo-600 rounded-full" style="width: 30%"></div>
+                    </div>
+                    <div class="text-sm text-gray-500">Compared to healthy baseline</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recommendations -->
+        <section class="mb-16 bg-indigo-50 p-8 rounded-xl">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Clinical Recommendations</h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                {% for recommendation in results.recommendations %}
+                <div class="bg-white p-5 rounded-lg shadow-sm flex items-start">
+                    <div class="bg-indigo-100 text-indigo-600 p-3 rounded-full mr-4">
+                        <i class="fas fa-{{ 'user-md' if loop.index0 == 0 else 'flask' if loop.index0 == 1 else 'brain' if loop.index0 == 2 else 'calendar-check' }}"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-800 mb-1">Recommendation {{ loop.index }}</h3>
+                        <p class="text-gray-600">{{ recommendation }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Next Steps -->
+        <section class="text-center">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Next Steps</h2>
+            <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6 mb-8">
+                <a href="#" class="btn-primary text-white px-6 py-3 rounded-lg font-medium">
+                    <i class="fas fa-download mr-2"></i> Download Full Report
+                </a>
+                <a href="#" class="bg-white border border-gray-300 text-gray-700 px-6 py-3 rounded-lg font-medium hover:border-indigo-600 hover:text-indigo-600 transition">
+                    <i class="fas fa-user-md mr-2"></i> Find a Specialist
+                </a>
+            </div>
+            <a href="/" class="text-indigo-600 hover:text-indigo-800 font-medium">
+                <i class="fas fa-undo mr-2"></i> Analyze Another Scan
+            </a>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white pt-12 pb-8">
+        <div class="container mx-auto px-6">
+            <div class="border-t border-gray-800 pt-8 text-center">
+                <p class="text-gray-400">© 2025 NeuroScan AI. All rights reserved by Kalasalingam University.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Animation for brain regions
+        document.querySelectorAll('.brain-region').forEach(region => {
+            region.addEventListener('mouseenter', () => {
+                const tooltip = region.querySelector('.region-tooltip');
+                tooltip.classList.remove('hidden');
+                tooltip.classList.add('animate__animated', 'animate__fadeInUp');
+            });
+
+            region.addEventListener('mouseleave', () => {
+                const tooltip = region.querySelector('.region-tooltip');
+                tooltip.classList.add('hidden');
+            });
+        });
+    </script>
+</body>
+</html>
