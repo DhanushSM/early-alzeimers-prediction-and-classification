@@ -1,6 +1,4 @@
-Got it 👍 Since your repo already has **app.py** (backend), **index.html** (frontend), and result pages (2D, 3D visualizations), the README should also highlight the **web application aspect**, not just the ML pipeline. Here’s an improved version tailored to your repository structure:
 
----
 
 # 🧠 Early Alzheimer's Prediction and Classification
 
@@ -108,8 +106,3 @@ Licensed under the **MIT License**.
 🔗 [GitHub Profile](https://github.com/DhanushSM)
 💼 Interested in **AI/ML, Computer Vision, and Healthcare AI collaborations**
 
----
-
-✨ This version makes it clear that your repo isn’t just ML code — it’s a **full-fledged ML web app**.
-
-Do you want me to also **add a “Demo” section** with screenshots/gifs (index.html + results pages) so that recruiters and collaborators immediately see how it works?
